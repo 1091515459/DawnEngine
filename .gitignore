@@ -1,4 +1,5 @@
 
+${tmpdir}
 ${tmpdir}/BrowserMetrics/BrowserMetrics-5FBE023B-1B70.pma
 ${tmpdir}/BrowserMetrics/BrowserMetrics-5FBE027F-6550.pma
 ${tmpdir}/chrome_shutdown_ms.txt
