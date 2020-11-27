@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>Dawn Editor</title>
     <script src="../../three.js-dev/build/three.js"></script>
+    <script src="../../three.js-dev/examples/js/controls/TrackballControls.js"></script>
+    <script src="../../three.js-dev/examples/js/libs/stats.min.js"></script>
     <style type="text/css">
         div#canvas-frame {
             border: none;
@@ -28,6 +30,14 @@
             renderer.setClearColor(0xa5a5a5, 1.0);
         }
 
+        //初始化性能插件 
+        var stats;
+
+        function initStats() {
+            stats = new Stats();
+            document.body.appendChild(stats.dom);
+        }
+
         var camera;
 
         function initCamera() {
@@ -39,6 +49,21 @@
             camera.up.y = 0;
             camera.up.z = 1;
             camera.lookAt(0, 0, 0);
+        }
+
+        var controls;
+
+        function initControls(params) {
+            controls = new THREE.TrackballControls(camera);
+            controls.rotateSpeed = 5;
+            controls.zoomSpeed = 3;
+            controls.panSpeed = 0.8;
+            controls.noZoom = false;
+            controls.noPan = false;
+            controls.staticMoving = false;
+            controls.dynamicDampingFactor = 0.3;
+            //controls.keys = [65,83,68];
+            controls.addEventListener('change', render);
         }
 
         var scene;
@@ -59,22 +84,28 @@
 
         function initObject() {
 
-            var geometry = new THREE.Geometry();
-            var material = new THREE.LineBasicMaterial({
-                vertexColors: THREE.VertexColors
-            });
-            var color1 = new THREE.Color(0x444444),
-                color2 = new THREE.Color(0xFF0000);
+            // var geometry = new THREE.Geometry();
+            // var material = new THREE.LineBasicMaterial({
+            //     vertexColors: THREE.VertexColors
+            // });
+            // var color1 = new THREE.Color(0x444444),
+            //     color2 = new THREE.Color(0xFF0000);
 
-            // 线的材质可以由2点的颜色决定
-            var p1 = new THREE.Vector3(-100, 0, 100);
-            var p2 = new THREE.Vector3(100, 0, -100);
-            geometry.vertices.push(p1);
-            geometry.vertices.push(p2);
-            geometry.colors.push(color1, color2);
+            // // 线的材质可以由2点的颜色决定
+            // var p1 = new THREE.Vector3(-100, 0, 100);
+            // var p2 = new THREE.Vector3(100, 0, -100);
+            // geometry.vertices.push(p1);
+            // geometry.vertices.push(p2);
+            // geometry.colors.push(color1, color2);
 
-            var line = new THREE.Line(geometry, material, THREE.LineSegments);
-            scene.add(line);
+            // var line = new THREE.Line(geometry, material, THREE.LineSegments);
+            // scene.add(line);
+
+            var map = new THREE.TextureLoader().load("")
+        }
+
+        function update(params) {
+
         }
 
         function threeStart() {
