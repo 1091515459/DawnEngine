@@ -19,23 +19,13 @@
     <script>
         var renderer;
 
-        function initThree() {
+        function initRender() {
             width = document.getElementById('canvas-frame').clientWidth;
             height = document.getElementById('canvas-frame').clientHeight;
-            renderer = new THREE.WebGLRenderer({
-                antialias: true
-            });
+            renderer = new THREE.WebGLRenderer({antialias: true});
             renderer.setSize(width, height);
             document.getElementById('canvas-frame').appendChild(renderer.domElement);
             renderer.setClearColor(0xa5a5a5, 1.0);
-        }
-
-        //初始化性能插件 
-        var stats;
-
-        function initStats() {
-            stats = new Stats();
-            document.body.appendChild(stats.dom);
         }
 
         var camera;
@@ -49,21 +39,6 @@
             camera.up.y = 0;
             camera.up.z = 1;
             camera.lookAt(0, 0, 0);
-        }
-
-        var controls;
-
-        function initControls(params) {
-            controls = new THREE.TrackballControls(camera);
-            controls.rotateSpeed = 5;
-            controls.zoomSpeed = 3;
-            controls.panSpeed = 0.8;
-            controls.noZoom = false;
-            controls.noPan = false;
-            controls.staticMoving = false;
-            controls.dynamicDampingFactor = 0.3;
-            //controls.keys = [65,83,68];
-            controls.addEventListener('change', render);
         }
 
         var scene;
@@ -83,44 +58,69 @@
         var cube;
 
         function initObject() {
-
-            // var geometry = new THREE.Geometry();
-            // var material = new THREE.LineBasicMaterial({
-            //     vertexColors: THREE.VertexColors
-            // });
-            // var color1 = new THREE.Color(0x444444),
-            //     color2 = new THREE.Color(0xFF0000);
-
-            // // 线的材质可以由2点的颜色决定
-            // var p1 = new THREE.Vector3(-100, 0, 100);
-            // var p2 = new THREE.Vector3(100, 0, -100);
-            // geometry.vertices.push(p1);
-            // geometry.vertices.push(p2);
-            // geometry.colors.push(color1, color2);
-
-            // var line = new THREE.Line(geometry, material, THREE.LineSegments);
-            // scene.add(line);
-
-            var map = new THREE.TextureLoader().load("")
+            var map = new THREE.TextureLoader().load("Image/dodogama_chibi-768x529.png");
+            var material = new THREE.MeshLambertMaterial({map:map});
+            var cube = new THREE.Mesh(new THREE.BoxGeometry(100,200,100,1,1,1),material);
+            scene.add(cube);
         }
 
-        function update(params) {
+        var controls;
 
+        function initControls(params) {
+            controls = new THREE.TrackballControls(camera,renderer.domElement);
+            //旋转速度
+            controls.rotateSpeed = 5;
+            //变焦速度
+            controls.zoomSpeed = 3;
+            //平移速度
+            controls.panSpeed = 0.8;
+            //是否不变焦
+            controls.noZoom = false;
+            //是否不平移
+            controls.noPan = false;
+            //是否开启移动惯性
+            controls.staticMoving = false;
+            //动态阻尼系数 就是灵敏度
+            controls.dynamicDampingFactor = 0.3;
+            //未知
+            //controls.keys = [65,83,68];
+            controls.addEventListener('change', renderer);
         }
 
-        function threeStart() {
-            initThree();
+        
+        //初始化性能插件 
+        var stats;
+
+        function initStats() {
+            stats = new Stats();
+            document.body.appendChild(stats.dom);
+        }
+
+        function update() {
+            //更新控制器
+            controls.update();
+            renderer.clear();
+            renderer.render(scene, camera);
+            //更新性能插件
+            stats.update();
+            requestAnimationFrame(update);
+        }
+
+        function Start() {
+            initRender();
             initCamera();
             initScene();
             initLight();
             initObject();
-            renderer.clear();
-            renderer.render(scene, camera);
+            initControls();
+            initStats();
+
+            update();
         }
     </script>
 </head>
 
-<body onload="threeStart();">
+<body onload="Start();">
     <div id="canvas-frame"></div>
 </body>
 
