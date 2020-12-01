@@ -9,3 +9,7 @@ Webgl-based modeling engine, because I want to build an engine to build the mode
 |生成物体         |`只能通过代码生成小方块`                               |` `|5%|实现生成加载的模型|
 |加载服务资源     |`只能通过代码加载固定路径的图片`                        |` `|5%|打开资源管理器并且加载选中的文件|
 |渲染3D物体       |`物体只能显示自己本来颜色不能反射或者受灯光或者环境光影响`|` `|1%|添加物体对光线的渲染|
+
+## ShopWindow
+
+<img src="https://github.com/1091515459/DawnEngine/blob/main/shopwindow/%E5%BD%95%E5%88%B6_2020_12_01_08_36_57_7.gif" width="60%" height="60%">
