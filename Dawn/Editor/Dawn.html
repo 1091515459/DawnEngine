@@ -4,135 +4,233 @@
 <head>
     <meta charset="UTF-8">
     <title>Dawn Editor</title>
-    <script src="../../three.js-dev/build/three.js"></script>
-    <script src="../../three.js-dev/examples/js/controls/TrackballControls.js"></script>
-    <script src="../../three.js-dev/examples/js/libs/stats.min.js"></script>
+
     <style type="text/css">
-        div#canvas-frame {
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            height: 600px;
-            background-color: #a5a5a5;
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+        }
+
+        canvas {
+            display: block;
         }
     </style>
-    <script>
-        var renderer;
-
-        function initRender() {
-            width = document.getElementById('canvas-frame').clientWidth;
-            height = document.getElementById('canvas-frame').clientHeight;
-            renderer = new THREE.WebGLRenderer({
-                antialias: true
-            });
-            renderer.setSize(width, height);
-            document.getElementById('canvas-frame').appendChild(renderer.domElement);
-            renderer.setClearColor(0xa5a5a5, 1.0);
-        }
-
-        var camera;
-
-        function initCamera() {
-            camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
-            camera.position.set(0, 1000, 0);
-            // camera.lookAt(0, 0, 0);
-        }
-
-        var scene;
-
-        function initScene() {
-            scene = new THREE.Scene();
-        }
-
-        var light;
-
-        function initLight() {
-            scene.add(new THREE.AmbientLight(0x404040));
-
-            light = new THREE.DirectionalLight(0xFFFFFF, 1.0, 0);
-            light.position.set(100, 100, 200);
-            scene.add(light);
-        }
-
-        var cube;
-
-        function initObject() {
-            var map = new THREE.TextureLoader().load(
-                "https://raw.githubusercontent.com/1091515459/DawnEngine/main/Dawn/Editor/Image/dodogama_chibi-768x529.png"
-            );
-            var material = new THREE.MeshLambertMaterial({
-                map: map
-            });
-            var cube = new THREE.Mesh(new THREE.BoxGeometry(150, 100, 100, 1, 1, 1), material);
-            scene.add(cube);
-        }
-
-        var controls;
-
-        function initControls() {
-            controls = new THREE.TrackballControls(camera, renderer.domElement);
-            //旋转速度
-            controls.rotateSpeed = 5;
-            //变焦速度
-            controls.zoomSpeed = 3;
-            //平移速度
-            controls.panSpeed = 0.8;
-            //是否不变焦
-            controls.noZoom = false;
-            //是否不平移
-            controls.noPan = false;
-            //是否开启移动惯性
-            controls.staticMoving = false;
-            //动态阻尼系数 就是灵敏度
-            controls.dynamicDampingFactor = 0.3;
-            //未知
-            controls.keys = [65,83,68];
-            controls.addEventListener('change', render);
-        }
-
-        function render() {
-            renderer.render(scene, camera);
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            controls.handleResize();
-            render();
-            renderer.setSize(windwo.innerWidth, window.innerHeight);
-        }
-
-        //初始化性能插件 
-        var stats;
-
-        function initStats() {
-            stats = new Stats();
-            document.body.appendChild(stats.dom);
-        }
-
-        function animate() {
-            //更新控制器
-            controls.update();
-            render();
-            //更新性能插件
-            stats.update();
-            requestAnimationFrame(animate);
-        }
-
-        function Start() {
-            initRender();
-            initScene();
-            initCamera();
-            initLight();
-            initObject();
-            initControls();
-            initStats();
-
-            animate();
-            window.onresize = onWindowResize;
-        }
-    </script>
 </head>
+<script src="../../three.js-dev/build/three.js"></script>
+<script src="../../three.js-dev/examples/js/controls/TrackballControls.js"></script>
+<script src="../../three.js-dev/examples/js/libs/stats.min.js"></script>
+<script>
+    var renderer;
+
+    function initRender() {
+        renderer = new THREE.WebGLRenderer({
+            antialias: true
+        });
+        //设置canvas尺寸
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-frame').appendChild(renderer.domElement);
+        renderer.setClearColor(0xFFFFFF, 1.0);
+    }
+
+    var camera;
+
+    function initCamera() {
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+        camera.position.set(0, 0, 400);
+        // camera.lookAt(0, 0, 0);
+    }
+
+    var scene;
+
+    function initScene() {
+        scene = new THREE.Scene();
+    }
+
+    var light;
+
+    function initLight() {
+        scene.add(new THREE.AmbientLight(0x404040));
+
+        light = new THREE.DirectionalLight(0xFFFFFF, 1.0, 0);
+        light.position.set(100, 100, 200);
+        scene.add(light);
+    }
+
+    var cube;
+
+    function initObject() {
+        var map = new THREE.TextureLoader().load(
+            "https://raw.githubusercontent.com/1091515459/DawnEngine/main/Dawn/Editor/Image/dodogama_chibi-768x529.png"
+        );
+        var material = new THREE.MeshLambertMaterial({
+            map: map
+        });
+        var cube = new THREE.Mesh(new THREE.BoxGeometry(150, 100, 100, 1, 1, 1), material);
+        // cube.position.set(0, 300, 0)
+        scene.add(cube);
+
+
+        // //通过加载图片生成一个纹理
+        // var map = new THREE.TextureLoader().load(
+        //     "https://raw.githubusercontent.com/1091515459/DawnEngine/main/Dawn/Editor/Image/dameinv.jpg");
+        // //定义纹理在水平和垂直方向简单的重复到无穷大。
+        // map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        // //定义纹理的各向异性
+        // map.anisotropy = 16;
+
+        // //定义兰伯特网孔材质
+        // var material = new THREE.MeshLambertMaterial({
+        //     map: map,
+        //     side: THREE.DoubleSide
+        // });
+
+        // //球形网格 （半径长度，水平块的密度，垂直块的密度）
+        // object = new THREE.Mesh(new THREE.SphereGeometry(75, 20, 10), material);
+        // object.position.set(-400, 0, 200);
+        // scene.add(object);
+
+        // //二十面体 （图形大小半径，大于零将不是二十面体，越大越圆滑）
+        // object = new THREE.Mesh(new THREE.IcosahedronGeometry(75, 0), material);
+        // object.position.set(-200, 0, 200);
+        // scene.add(object);
+
+        // //八面体（图形大小半径，大于零将不是八面体，越大越圆滑）
+        // object = new THREE.Mesh(new THREE.OctahedronGeometry(75, 0), material);
+        // object.position.set(0, 0, 200);
+        // scene.add(object);
+
+        // //四面体（图形大小半径，大于零将不是四面体，越大越圆滑）
+        // object = new THREE.Mesh(new THREE.TetrahedronGeometry(75, 0), material);
+        // object.position.set(200, 0, 200);
+        // scene.add(object);
+
+        // //长方形平面 （x轴宽度，y轴高度，x方向分段数，y方向分段数）
+        // object = new THREE.Mesh(new THREE.PlaneGeometry(100, 100, 1, 1), material);
+        // object.position.set(-400, 0, 0);
+        // scene.add(object);
+
+        // //立方体 （x轴宽度，y轴高度，z轴深度，沿宽面分段数，沿高度面分段数，沿深度面分段数）
+        // object = new THREE.Mesh(new THREE.BoxGeometry(100, 100, 100, 1, 1, 1), material);
+        // object.position.set(-200, 0, 0);
+        // scene.add(object);
+
+        // //圆形平面 （半径，顶点密度，绘制起点弧度，绘制弧度）
+        // object = new THREE.Mesh(new THREE.CircleGeometry(50, 20, 0, Math.PI * 2), material);
+        // object.position.set(0, 0, 0);
+        // scene.add(object);
+
+        // //空心圆平面 （内圆半径，外圆半径，分割面越大越圆滑，垂直外边分割面，开始绘制弧度，绘制弧度）
+        // object = new THREE.Mesh(new THREE.RingGeometry(10, 50, 10, 5, 0, Math.PI * 2), material);
+        // object.position.set(200, 0, 0);
+        // scene.add(object);
+
+        // //圆柱体 （头部圆的半径，底部圆半径，高度，上下圆顶点个数，上下面切割线条数，上下面是否显示，开始弧度，绘制弧度）
+        // object = new THREE.Mesh(new THREE.CylinderGeometry(25, 75, 100, 40, 5), material);
+        // object.position.set(400, 0, 0);
+        // scene.add(object);
+
+        // //车床模型
+        // var points = [];
+
+        // for (var i = 0; i < 50; i++) {
+
+        //     points.push(new THREE.Vector2(Math.sin(i * 0.2) * Math.sin(i * 0.1) * 15 + 50, (i - 5) * 2));
+
+        // }
+
+        // //（一个vector2的数组分别代表xy轴，生成圆周段的数目，开始弧度，绘制弧度）
+        // object = new THREE.Mesh(new THREE.LatheGeometry(points, 20), material);
+        // object.position.set(-400, 0, -200);
+        // scene.add(object);
+
+        // //救生圈 （救生圈半径，管道直径，基于管道横切顶点数，救生圈横切顶点个数）
+        // object = new THREE.Mesh(new THREE.TorusGeometry(50, 20, 20, 20), material);
+        // object.position.set(-200, 0, -200);
+        // scene.add(object);
+
+        // //环面扭结模型 （图形半径，管道直径，基于管道横切定点数，根据图形半径横切顶点数，绕旋转对称轴的圈数，绕环面的圆的圈数）
+        // object = new THREE.Mesh(new THREE.TorusKnotGeometry(50, 10, 50, 20), material);
+        // object.position.set(0, 0, -200);
+        // scene.add(object);
+
+        // //轴辅助 （每一个轴的长度）
+        // object = new THREE.AxesHelper(50);
+        // object.position.set(200, 0, -200);
+        // scene.add(object);
+
+        // //箭头辅助（箭头头的方向必须是vecteor3，箭头起点必须是vector3，箭头长度，颜色）
+        // object = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 50, 0x00ffff);
+        // object.position.set(400, 0, -200);
+        // scene.add(object);
+    }
+
+    var controls;
+
+    function initControls() {
+        controls = new THREE.TrackballControls(camera, renderer.domElement);
+        // //旋转速度
+        // controls.rotateSpeed = 5;
+        // //变焦速度
+        // controls.zoomSpeed = 3;
+        // //平移速度
+        // controls.panSpeed = 0.8;
+        // //是否不变焦
+        // controls.noZoom = false;
+        // //是否不平移
+        // controls.noPan = false;
+        // //是否开启移动惯性
+        // controls.staticMoving = false;
+        //动态阻尼系数 就是灵敏度
+        controls.dynamicDampingFactor = 0.3;
+        // //未知
+        // controls.keys = [65,83,68];
+        controls.addEventListener('change', render);
+    }
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        controls.handleResize();
+        render();
+        renderer.setSize(windwo.innerWidth, window.innerHeight);
+    }
+
+    //初始化性能插件 
+    var stats;
+
+    function initStats() {
+        stats = new Stats();
+        document.body.appendChild(stats.dom);
+    }
+
+    function animate() {
+        //更新控制器
+        controls.update();
+        render();
+        //更新性能插件
+        stats.update();
+        requestAnimationFrame(animate);
+    }
+
+    function Start() {
+        initRender();
+        initScene();
+        initCamera();
+        initLight();
+        initObject();
+        initControls();
+        initStats();
+
+        animate();
+        window.onresize = onWindowResize;
+    }
+</script>
+
 
 <body onload="Start();">
     <div id="canvas-frame"></div>
