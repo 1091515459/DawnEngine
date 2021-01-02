@@ -21,6 +21,7 @@
 <!-- <script src="../../three.js-dev/examples/js/controls/TrackballControls.js"></script> -->
 <script src="../../three.js-dev/examples/js/controls/OrbitControls.js"></script>
 <script src="../../three.js-dev/examples/js/libs/stats.min.js"></script>
+<script src="../../three.js-dev/examples/js/libs/dat.gui.min.js"></script>
 <script src="../../three.js-dev/examples/js/Detector.js"></script>
 <script src="../../Tool/Stuk-jszip-25d401e/dist/jszip.js"></script>
 
@@ -51,49 +52,166 @@
     }
 
     var scene;
+
     function initScene() {
         scene = new THREE.Scene();
+        // //场景内所有模型都使用同一种材质
+        // scene.overrideMaterial = new THREE.MeshStandardMaterial({
+        //     color: 0x00ffff
+        // });
     }
 
-    var light;
+    //初始化dat.GUI建华实验流程
+    var gui;
+
+    function initGUI(params) {
+        //声明一个保存需求修改的相关数据的对象
+        gui = {
+            ambientLight: "#111111",
+            pointLight: "#FFFFFF",
+            PLdistance: 10,
+            PLintensity: 1,
+            pointLightPosX: 60,
+            pointLightPosY: 30,
+            pointLightPosZ: 0,
+            PLcastShadow: true,
+            pointLightEnable: true,
+
+            spotLight: "#FFFFFF",
+            SLdistance: 10,
+            SLintensity: 1,
+            spotLightPosX: 60,
+            spotLightPosY: 0,
+            spotLightPosZ: 30,
+            SLcastShadow: true,
+            exponent: 20,
+            debug: true,
+            target:"plane",
+            spotLightEnable: true,
+
+            positionX: 10,
+            positionY: 10,
+            positionZ: 10,
+            scaleX: 3,
+            scaleY: 3,
+            scaleZ: 3,
+            rotationX: 0,
+            rotationY: 0,
+            rotationZ: 0,
+            translateX: 0,
+            translateY: 0,
+            translateZ: 0,
+            DOIT: function (params) {
+                // cube.translate(gui.translateX,gui.translateY,gui.translateZ);
+                cube.translateX(gui.translateX);
+                cube.translateY(gui.translateY);
+                cube.translateZ(gui.translateZ);
+
+                gui.positionX = cube.position.x;
+                gui.positionY = cube.position.y;
+                gui.positionZ = cube.position.z;
+            },
+            enable: true
+        }
+        var datGUI = new dat.GUI();
+        datGUI.addColor(gui, "ambientLight").onChange(function (params) {
+            ambientLight.color = new THREE.Color(params);
+        });
+        var PL = datGUI.addFolder("pointLight");
+        PL.addColor(gui, "pointLight").onChange(function (params) {
+            pointLight.color = new THREE.Color(params);
+        });
+        PL.add(gui, "PLcastShadow").onChange(function (params) {
+            pointLight.castShadow = params;
+        });
+        PL.add(gui, "PLdistance", 0.01, 100);
+        PL.add(gui, "PLintensity", 0.1, 10);
+        PL.add(gui, "pointLightPosX", -100, 100);
+        PL.add(gui, "pointLightPosY", -100, 100);
+        PL.add(gui, "pointLightPosZ", -100, 100);
+        PL.add(gui, "pointLightEnable");
+
+        var SL = datGUI.addFolder("spotLight");
+        SL.addColor(gui, "spotLight").onChange(function (params) {
+            pointLight.color = new THREE.Color(params);
+        });
+        SL.add(gui, "SLcastShadow").onChange(function (params) {
+            pointLight.castShadow = params;
+        });
+        SL.add(gui, "SLdistance", 0.01, 100);
+        SL.add(gui, "exponent", 0.01, 100);
+        SL.add(gui, "SLintensity", 0.1, 10);
+        SL.add(gui, "spotLightPosX", -100, 100);
+        SL.add(gui, "spotLightPosY", -100, 100);
+        SL.add(gui, "spotLightPosZ", -100, 100);
+        SL.add(gui, "spotLightEnable");
+        SL.add(gui,"debug").onChange(function (e) {
+            if(e){
+                debug = new THREE.CameraHelper(spotLight.shadow.camera);
+                scene.add(debug);
+            }
+            else{
+                scene.remove(debug);
+            }
+        });
+        SL.add(gui,"target",["plane","cube"]).onChange(function (e) {
+            switch (e){
+                case "plane":
+                    spotLight.target = plane;
+                    break;
+                case "cube":
+                    spotLight.target = cube;
+                    break;
+            }
+        });
+
+        var Cube = datGUI.addFolder("Cube");
+        var pos = Cube.addFolder("pos");
+        pos.add(gui, "positionX", -100, 100);
+        pos.add(gui, "positionY", -100, 100);
+        pos.add(gui, "positionZ", -100, 100);
+        var scal = Cube.addFolder("scal");
+        scal.add(gui, "scaleX", 0.001, 100);
+        scal.add(gui, "scaleY", 0.001, 100);
+        scal.add(gui, "scaleZ", 0.001, 100);
+        var rot = Cube.addFolder("rot");
+        rot.add(gui, "rotationX", -200, 200);
+        rot.add(gui, "rotationY", -200, 200);
+        rot.add(gui, "rotationZ", -200, 200);
+        var translate = Cube.addFolder("translate");
+        translate.add(gui, "translateX", -20, 20);
+        translate.add(gui, "translateY", -20, 20);
+        translate.add(gui, "translateZ", -20, 20);
+        translate.add(gui, "DOIT");
+        Cube.add(gui, "enable");
+    }
+
+    var ambientLight;
+    var pointLight;
+    var spotLight;
+
     function initLight() {
-        scene.add(new THREE.AmbientLight(0x444444));
+        ambientLight = new THREE.AmbientLight("#111111");
+        ambientLight.position.set(60, 30, 0);
+        scene.add(ambientLight);
 
-        light = new THREE.SpotLight(0xFFFFFF);
-        light.position.set(60,30,0);
-
+        pointLight = new THREE.PointLight("#ffffff");
+        pointLight.position.set(60, 30, 0);
         //告诉平行光需要开启阴影投射
-        light.castShadow = true;
+        pointLight.castShadow = true;
+        scene.add(pointLight);
 
-        scene.add(light);
+        spotLight = new THREE.SpotLight("#ffffff");
+        spotLight.position.set(60, 0, 30);
+        //告诉平行光需要开启阴影投射
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        debug = new THREE.CameraHelper(spotLight.shadow.camera);
+        scene.add(debug);
     }
 
-    var cube;
-
-    //用于创建XMLHttpRequest对象
-    function createXmlHttp() {
-        //根据window.XMLHttpRequest对象是否存在使用不同的创建方式
-        if (window.XMLHttpRequest) {
-            xmlHttp = new XMLHttpRequest(); //FireFox、Opera等浏览器支持的创建方式
-        } else {
-            xmlHttp = new ActiveXObject("Microsoft.XMLHTTP"); //IE浏览器支持的创建方式
-        }
-    }
-
-    //直接通过XMLHttpRequest对象获取远程网页源代码
-    function getSource() {
-        var url = document.getElementById("url").value; //获取目标地址信息
-        //地址为空时提示用户输入
-        if (url == "") {
-            alert("请输入网页地址。");
-            return;
-        }
-        document.getElementById("source").value = "正在加载……"; //提示正在加载
-        createXmlHttp(); //创建XMLHttpRequest对象
-        xmlHttp.onreadystatechange = writeSource; //设置回调函数
-        xmlHttp.open("GET", url, true);
-        xmlHttp.send(null);
-    }
+    var sphere, cube, plane;
 
     function initObject() {
         // var map = new THREE.TextureLoader().load(
@@ -106,12 +224,13 @@
         // // cube.position.set(0, 300, 0)
         // scene.add(cube);
 
-//TODO:现在小球没有金属光泽
         //上面的球
-        var sphereGeometry = new THREE.SphereGeometry(5,20,20);
-        var sphereMaterial = new THREE.MeshStandardMaterial({color:0x7777ff});
+        var sphereGeometry = new THREE.SphereGeometry(5, 20, 20);
+        var sphereMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x7777ff
+        });
 
-        var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
         sphere.position.y = 5;
 
         //告诉球需要投射阴影
@@ -124,10 +243,58 @@
         scene.add(helper);
 
         //立方体
-        var cubeGeometry = new THREE.CubeGeometry(10,10,8);
-        var cubeMaterial = new THREE.MeshLambertMaterial({color:0x00ffff});
+        // 创建一个立方体
+        //    v6----- v5
+        //   /|      /|
+        //  v1------v0|
+        //  | |     | |
+        //  | |v7---|-|v4
+        //  |/      |/
+        //  v2------v3
 
-        var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        //立方体
+        var cubeGeometry = new THREE.Geometry();
+
+        //创建立方体的顶点
+        var vertices = [
+            new THREE.Vector3(2, 2, 2), //v0
+            new THREE.Vector3(-2, 2, 2), //v1
+            new THREE.Vector3(-2, -2, 2), //v2
+            new THREE.Vector3(2, -2, 2), //v3
+            new THREE.Vector3(2, -2, -2), //v4
+            new THREE.Vector3(2, 2, -2), //v5
+            new THREE.Vector3(-2, 2, -2), //v6
+            new THREE.Vector3(-2, -2, -2) //v7
+        ];
+
+        cubeGeometry.vertices = vertices;
+
+        //创建立方的面
+        var faces = [
+            new THREE.Face3(0, 1, 2),
+            new THREE.Face3(0, 2, 3),
+            new THREE.Face3(0, 3, 4),
+            new THREE.Face3(0, 4, 5),
+            new THREE.Face3(1, 6, 7),
+            new THREE.Face3(1, 7, 2),
+            new THREE.Face3(6, 5, 4),
+            new THREE.Face3(6, 4, 7),
+            new THREE.Face3(5, 6, 1),
+            new THREE.Face3(5, 1, 0),
+            new THREE.Face3(3, 2, 7),
+            new THREE.Face3(3, 7, 4)
+        ];
+
+        cubeGeometry.faces = faces;
+
+        //生成法向量
+        cubeGeometry.computeFaceNormals();
+        // var cubeGeometry = new THREE.CubeGeometry(10, 10, 8);
+        var cubeMaterial = new THREE.MeshLambertMaterial({
+            color: 0x00ffff
+        });
+
+        cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
         cube.position.x = 25;
         cube.position.y = 5;
         cube.position.z = -5;
@@ -138,11 +305,13 @@
         scene.add(cube);
 
         //底部平面
-        var planeGeometry = new THREE.PlaneGeometry(100,100);
-        var planeMaterial = new THREE.MeshStandardMaterial({color:0xaaaaaa});
+        var planeGeometry = new THREE.PlaneGeometry(100, 100);
+        var planeMaterial = new THREE.MeshStandardMaterial({
+            color: 0xaaaaaa
+        });
 
-        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-        plane.rotation.x = - 0.5 * Math.PI;
+        plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.rotation.x = -0.5 * Math.PI;
         plane.position.y = -0;
 
         //告诉底部平面需要接收阴影
@@ -151,7 +320,7 @@
         scene.add(plane);
 
 
-///------------------------------------------------------------
+        ///------------------------------------------------------------
 
         //字体
         // var font;
@@ -178,7 +347,7 @@
         //         scene.add(fontModel);
         //     });
 
-///------------------------------------------------------------
+        ///------------------------------------------------------------
 
         // //通过加载图片生成一个纹理
         // var map = new THREE.TextureLoader().load(
@@ -263,10 +432,10 @@
         // object.position.set(0, 0, -200);
         // scene.add(object);
 
-        // //轴辅助 （每一个轴的长度）
-        // object = new THREE.AxesHelper(50);
-        // object.position.set(200, 0, -200);
-        // scene.add(object);
+        //轴辅助 （每一个轴的长度）
+        object = new THREE.AxesHelper(50);
+        object.position.set(60, 30, 0);
+        scene.add(object);
 
         // //箭头辅助（箭头头的方向必须是vecteor3，箭头起点必须是vector3，箭头长度，颜色）
         // object = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 50, 0x00ffff);
@@ -316,7 +485,7 @@
         //是否开启右键拖拽
         controls.enablePan = true;
 
-        controls.addEventListener('change',render);
+        controls.addEventListener('change', render);
     }
 
     function render() {
@@ -333,6 +502,7 @@
 
     //初始化性能插件 
     var stats;
+
     function initStats() {
         stats = new Stats();
         document.body.appendChild(stats.dom);
@@ -343,6 +513,23 @@
         render();
         //更新性能插件
         stats.update();
+
+        //给场景中的物体赋值
+        pointLight.visible = gui.pointLightEnable;
+        pointLight.intensity = gui.PLintensity;
+        pointLight.position.set(gui.pointLightPosX, gui.pointLightPosY, gui.pointLightPosZ);
+
+        spotLight.visible = gui.spotLightEnable;
+        spotLight.intensity = gui.SLintensity;
+        spotLight.exponent = gui.exponent;
+        spotLight.distance = gui.SLdistance;
+        spotLight.position.set(gui.spotLightPosX, gui.spotLightPosY, gui.spotLightPosZ);
+
+        cube.position.set(gui.positionX, gui.positionY, gui.positionZ);
+        cube.scale.set(gui.scaleX, gui.scaleY, gui.scaleZ);
+        cube.rotation.set(gui.rotationX, gui.rotationY, gui.rotationZ);
+        cube.visible = gui.enable;
+
         controls.update();
         requestAnimationFrame(animate);
     }
@@ -355,6 +542,7 @@
         initRender();
         initScene();
         initCamera();
+        initGUI();
         initLight();
         initObject();
         initControls();
